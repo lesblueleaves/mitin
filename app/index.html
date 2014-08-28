@@ -2,8 +2,42 @@
 <html>
 <head>
 	<title>Mitin</title>
+	<link rel="stylesheet" href="lib/bootstrap/dist/css/bootstrap.css">
+	<link rel="stylesheet" href="lib/bootstrap/dist/css/bootstrap-theme.css">
+	<link rel="stylesheet" href="css/common.css">
 </head>
 <body>
+<body>
+    <div class="navbar navbar-inverse navbar-fixed-top" data-role="navigation">
+    	<div class="page-header" >
+	  <div class="logo pull-left">
+	    <a class="navbar-brand" ui-sref="home" mean-token="'site-title'">SpringRoll</a>
+	  </div>
+
+	  <div class="left pull-left">
+	    <ul class="navbar-nav nav">
+	      <li  ui-route="/{{item.link}}" ng-class="{active: $uiRoute}">
+	        <a href="#"> Meetings</a>
+	      </li>
+	        <li>
+	        <a href="#"><i class="icon-home icon-white"></i>Create New Meeting</a>
+	      </li>
+	      <li>
+	        <a href="#"><i class="icon-home icon-white"></i>Groups</a>
+	      </li>
+	      <li>
+	        <a href="#"><i class="icon-home icon-white"></i>Create New Group</a>
+	      </li>
+	    </ul>
+	  </div>
+
+</div>
+    </div>
+  
+</body>
+
+
+
 <script src="lib/angular/angular.js"></script>
 <script src="lib/angular-route/angular-route.js"></script>
 </body>
