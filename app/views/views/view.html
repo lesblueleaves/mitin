@@ -1,0 +1,14 @@
+<section data-ng-controller="MeetingsController" data-ng-init="findOne()">
+  <span>{{meeting.created | date:'medium'}}</span> /
+  <span>{{meeting.user.name}}</span>
+  <h2>{{meeting.title}}</h2>
+  <div data-ng-if="hasAuthorization(meeting)">
+    <a class="btn" href="/#!/meetings/{{meeting._id}}/edit">
+      <i class="glyphicon glyphicon-edit"></i>
+    </a>
+    <a class="btn" data-ng-click="remove(meeting);">
+      <i class="glyphicon glyphicon-trash"></i>
+    </a>
+  </div>
+  <div>{{meeting.content}}</div>
+</section>
