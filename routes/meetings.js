@@ -27,4 +27,11 @@ router.get('/init', function(req,res){
 	});
 });
 
+router.post('/init1', function(req,res){
+	console.log(req.body);
+	res.json('ok');
+});
+
+
+
 module.exports = router;
