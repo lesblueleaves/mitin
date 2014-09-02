@@ -13,16 +13,13 @@ var meetings = require('./routes/meetings');
 var app = express();
 app.use(express.static(__dirname + '/app'));
 
-mongoose.connect('mongodb://localhost:27017/rock')
-// app.use(express.urlencoded());
+mongoose.connect('mongodb://localhost:27017/mean-dev');
 // view engine setup
 // app.set('views', path.join(__dirname, 'views'));
 // app.set('view engine', 'jade');
 
 // app.use(favicon());
 // app.use(logger('dev'));
-// app.use(bodyParser.json());
-// app.use(bodyParser.urlencoded());
 // app.use(cookieParser());
 // app.use(express.static(path.join(__dirname, 'public')));
 app.use( bodyParser.json() );
@@ -32,6 +29,7 @@ app.use( bodyParser.urlencoded() );
 app.use('/', routes);
 app.use('/users', users);
 app.use('/meetings', meetings);
+
 
 app.listen(9000)
 console.log("server started at 9000");

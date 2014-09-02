@@ -1,0 +1,62 @@
+<div>
+  <form name="meetingForm" class="form-horizontal col-md-12" role="form" data-ng-submit="create(meetingForm.$valid)" novalidate>
+    <div class="form-group" ng-class="{ 'has-error' : submitted && meetingForm.recipient.$invalid }">
+      <label class="col-md-3 control-label">Recipients</label>
+      <div class="col-md-9">
+         <input name="recips" id="seltag" class="form-control" type="text"  data-ng-model="meeting.recips"  data-role="tagsinput">
+        
+        <div ng-show="submitted && meetingForm.recipient.$invalid" class="help-block">
+          <p ng-show="meetingForm.recipient.$error.required">Recipient is required</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group" ng-class="{ 'has-error' : submitted && meetingForm.title.$invalid }">
+      <label class="col-md-3 control-label">Subject</label>
+      <div class="col-md-9">
+        <input name="title" type="text" class="form-control" data-ng-model="meeting.title" id="title" placeholder="Title" required>
+        <div ng-show="submitted && meetingForm.title.$invalid" class="help-block">
+          <p ng-show="meetingForm.title.$error.required">Title is required</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group" ng-class="{ 'has-error' : submitted && meetingForm.starttime.$invalid }">
+      <label class="col-md-3 control-label">Start Time</label>
+      <div class="col-md-6">
+       <input id='startTime' class='input' data-ng-model="meeting.starttime"/>
+        </div>
+        <div ng-show="submitted && meetingForm.starttime.$invalid" class="help-block">
+          <p ng-show="meetingForm.starttime.$error.required">starttime is required</p>
+        </div>
+      </div>
+    
+    <div class="form-group" ng-class="{ 'has-error' : submitted && meetingForm.endTime.$invalid }">
+      <label class="col-md-3 control-label">End Time</label>
+      <div class="col-md-6">
+       <input id='endTime' class='input' data-ng-model="meeting.starttime"/>
+        </div>
+        <div ng-show="submitted && meetingForm.endtime.$invalid" class="help-block">
+          <p ng-show="meetingForm.endtime.$error.required">endtime is required</p>
+        </div>
+      </div>
+   
+
+    <div class="form-group" ng-class="{ 'has-error' : submitted && meetingForm.content.$invalid }">
+      <label for="content" class="col-md-3 control-label">Content</label>
+      <div class="col-md-9">
+        <textarea name="content" data-ng-model="meeting.content" id="content" cols="30" rows="10" placeholder="Content" class="form-control" required></textarea>
+        <div ng-show="submitted && meetingForm.content.$invalid" class="help-block">
+          <p ng-show="meetingForm.content.$error.required">Content is required</p>
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="col-md-offset-3 col-md-9">
+        <button type="submit" class="btn btn-info">Submit</button>
+      </div>
+    </div>
+  </form>
+</div>
+<script src="js/meeting.js"></script>
+
