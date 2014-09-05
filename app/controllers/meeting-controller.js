@@ -1,4 +1,8 @@
-var mitinApp = angular.module('meetingApp',['meetingApp.MeetingService','ui.router']);
+var mitinApp = angular.module('meetingApp',['meetingApp.MeetingService','ui.router','auth-interceptor']);
+
+mitinApp.config(function ($httpProvider) {
+    $httpProvider.interceptors.push('auth-interceptor');
+});
 
 mitinApp.config(function($stateProvider, $urlRouterProvider,$httpProvider) {
 	var checkLoggedin = function($q, $timeout, $http, $location){
