@@ -15,7 +15,8 @@ elt.tagsinput({
     name: 'recips',
     displayKey: 'email',
     source: recips.ttAdapter()
-  }
+  },
+  freeInput: true
 });
 
 var now = moment();

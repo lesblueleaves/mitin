@@ -17,12 +17,10 @@ router.get('/all', function(req, res) {
 
 router.get('/:meetingId', function(req, res) {
 	Meeting.findOne({'_id':req.params.meetingId}, function(err, meeting){
-		console.log(meeting);
 		if (err){
 			console.error(err);
 		}
 		res.json(meeting);
-
 	})
 });
 
