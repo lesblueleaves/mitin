@@ -1,4 +1,8 @@
 'use strict';
+ var _ =               require('underscore')
+    , passport =        require('passport')
+    , LocalStrategy =   require('passport-local').Strategy
+    , userRoles =       require('../client/js/routingConfig').userRoles;
 
 /**
  * Module dependencies.
@@ -147,7 +151,44 @@ UserSchema.methods = {
     if (!password || !this.salt) return '';
     var salt = new Buffer(this.salt, 'base64');
     return crypto.pbkdf2Sync(password, salt, 10000, 64).toString('base64');
-  }
+  },
+
+   findById: function(id) {
+        return _.clone(_.find(users, function(user) { 
+          console.log(user.email);
+          console.log(id);
+          return user.email === id }));
+    },
+
+  // findByIdEmail: function(mail){
+    
+  // }
+
+  // localStrategy:  new LocalStrategy({
+  //     usernameField: 'email',
+  //     passwordField: 'password'
+  //   },
+  //     function(email, password, done) {
+  //       findOne({
+  //         email: email
+  //       }, function(err, user) {
+  //         if (err) {
+  //           return done(err);
+  //         }
+  //         if (!user) {
+  //           return done(null, false, {
+  //             message: 'Unknown user'
+  //           });
+  //         }
+  //         if (!user.authenticate(password)) {
+  //           return done(null, false, {
+  //             message: 'Invalid password'
+  //           });
+  //         }
+  //         return done(null, user);
+  //       });
+  //     }
+  // ),
 };
 
 mongoose.model('User', UserSchema);

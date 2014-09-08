@@ -1,7 +1,7 @@
 var express = require('express');
 var mongoose = require('mongoose');
 var router = express.Router();
-var meetings = require('../models/user.js');
+var users = require('../models/user.js');
 var User = mongoose.model('User');
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
@@ -65,9 +65,7 @@ router.post('/register', function(req, res, next) {
 
 router.post('/login',function(req,res, next){
 	passport.authenticate('local', function(err, user, info) {
-	    console.log('In authenticate callback!');
 	    if (err) return next(err);
-
 	    if (!user) {
 	      req.flash('errors', { msg: info.message });
 	      res.status(401).json({message: info.message});

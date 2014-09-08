@@ -1,8 +1,8 @@
 var mitinApp = angular.module('meetingApp',['meetingApp.MeetingService','ui.router','auth-interceptor']);
 
-mitinApp.config(function ($httpProvider) {
-    $httpProvider.interceptors.push('auth-interceptor');
-});
+// mitinApp.config(function ($httpProvider) {
+//     $httpProvider.interceptors.push('auth-interceptor');
+// });
 
 mitinApp.config(function($stateProvider, $urlRouterProvider,$httpProvider) {
 	var checkLoggedin = function($q, $timeout, $http, $location){
@@ -19,7 +19,7 @@ mitinApp.config(function($stateProvider, $urlRouterProvider,$httpProvider) {
 		return deferred.promise;
 	};
 
-	$httpProvider.interceptors.push('srInterceptor');
+	// $httpProvider.interceptors.push('srInterceptor');
 
     // $urlRouterProvider.otherwise('/home');
     $stateProvider
@@ -72,7 +72,8 @@ mitinApp.config(function($stateProvider, $urlRouterProvider,$httpProvider) {
 mitinApp.controller('HeaderCtrl', function($scope, $rootScope){
 	console.log('get in HeaderCtrl');
 	$rootScope.$on('loggedin', function() {
-	console.log('login');
+	  console.log('got loggedin');
+	  console.log($rootScope.user);
       $scope.global = {
         authenticated: !! $rootScope.user,
         user: $rootScope.user
@@ -113,14 +114,15 @@ mitinApp.controller('UserCtrl', function($scope, $rootScope, $location, $statePa
           password: $scope.user.password
         })
           .success(function(response) {
-          	console.log(response);
             // authentication OK
             $scope.loginError = 0;
-            // $rootScope.authenticated = true;
-            // $rootScope.user = response.user;
-            // console.log($rootScope.user);
+			console.log(response);
+
+
+            $rootScope.user = response.user;
+             console.log('response');
+            console.log($rootScope.user);
             $rootScope.$emit('loggedin');
-            // console.log($rootScope.user);
             if (response.redirect) {
               if (window.location.href === response.redirect) {
                 //This is so an admin user will get full admin page

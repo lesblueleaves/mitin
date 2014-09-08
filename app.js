@@ -9,12 +9,15 @@ var expressValidator = require('express-validator');
 var bodyParser = require('body-parser');
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
+var http = require('http');
 var flash = require('connect-flash');
 
+var users = require('./models/user.js');
 
-var routes = require('./routes/index');
-var users = require('./routes/users');
-var meetings = require('./routes/meetings');
+
+// var routes = require('./routes/index');
+// var users = require('./routes/users');
+// var meetings = require('./routes/meetings');
 
 // require('./config/passport.js');
 var app = express();
@@ -41,21 +44,22 @@ app.use(passport.session());
 
 app.use(flash());
 
-app.use('/', routes);
-app.use('/users', users);
-app.use('/meetings', meetings);
+// app.use('/', routes);
+// app.use('/users', users);
+// app.use('/meetings', meetings);
 
 
+require('./routes.js')(app);
 
-passport.serializeUser(function(user, done) {
-  done(null, user.id);
-});
+// passport.serializeUser(function(user, done) {
+//   done(null, user.email);
+// });
 
-passport.deserializeUser(function(id, done) {
-  findById(id, function (err, user) {
-    done(err, user);
-  });
-});
+// passport.deserializeUser(function(id, done) {
+//   User.findById(id, function (err, user) {
+//     done(err, user);
+//   });
+// });
 
 passport.use(new LocalStrategy({
   usernameField: 'email',
@@ -83,6 +87,25 @@ passport.use(new LocalStrategy({
 	}
 ));
 
-app.listen(9000)
-console.log("server started at 9000");
-module.exports = app;
+passport.serializeUser(function(user, done) {
+  done(null, user.email);
+});
+
+passport.deserializeUser(function(id, done) {
+  // User.findById(id, function (err, user) {
+  //   done(err, user);
+  // });
+ User.findOne({
+	    email: id
+	  }, function(err, user) {
+	  	console.log(user);
+	    done(null, user);
+	  });
+});
+
+app.set('port', process.env.PORT || 9000);
+http.createServer(app).listen(app.get('port'), function(){
+    console.log("Express server listening on port " + app.get('port'));
+});
+
+// module.exports = app;
