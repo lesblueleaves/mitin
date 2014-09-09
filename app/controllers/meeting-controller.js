@@ -1,8 +1,4 @@
-var mitinApp = angular.module('meetingApp',['meetingApp.MeetingService','ui.router','auth-interceptor']);
-
-// mitinApp.config(function ($httpProvider) {
-//     $httpProvider.interceptors.push('auth-interceptor');
-// });
+var mitinApp = angular.module('meetingApp',['ngCookies', 'meetingApp.MeetingService','ui.router']);
 
 mitinApp.config(function($stateProvider, $urlRouterProvider,$httpProvider) {
 	var checkLoggedin = function($q, $timeout, $http, $location){
@@ -20,11 +16,9 @@ mitinApp.config(function($stateProvider, $urlRouterProvider,$httpProvider) {
 	};
 
 	// $httpProvider.interceptors.push('srInterceptor');
-
-    // $urlRouterProvider.otherwise('/home');
     $stateProvider
 	    .state('home', {
-	            url: '/home',
+	            url: '/',
 	            templateUrl: 'views/home.html'
 	        })
         .state('meetings-all', {
@@ -36,7 +30,7 @@ mitinApp.config(function($stateProvider, $urlRouterProvider,$httpProvider) {
 	        }
         })
         .state('meetings-create', {
-        	url: '/user',
+        	url: '/meeting',
             templateUrl: 'views/meeting/create.html',
             controller: 'MeetingController'
         })
@@ -51,7 +45,7 @@ mitinApp.config(function($stateProvider, $urlRouterProvider,$httpProvider) {
             controller: 'UserCtrl'
         })
         .state('auth.register', {
-	        url: '/register',
+	        url: '/users/register',
 	        templateUrl: 'views/user/register.html',
 	        controller: 'UserCtrl'
 	        // resolve: {
@@ -59,21 +53,61 @@ mitinApp.config(function($stateProvider, $urlRouterProvider,$httpProvider) {
 	        // }
       	})
         .state('auth.login', {
-	        url: '/login',
+	        url: '/users/login',
 	        templateUrl: 'views/user/login.html',
 	        controller: 'UserCtrl'
 	        // resolve: {
 	        //   loggedin: checkLoggedOut
 	        // }
-      	})
-        ;
-});
+      	});
+    $urlRouterProvider.otherwise('/home');
 
-mitinApp.controller('HeaderCtrl', function($scope, $rootScope){
-	console.log('get in HeaderCtrl');
+    $httpProvider.interceptors.push(function($q, $location) {
+        return {
+            'responseError': function(response) {
+                if(response.status === 401 || response.status === 403) {
+                    $location.path('/users/login');
+                }
+                return $q.reject(response);
+            }
+        };
+    });
+})
+.run(['$rootScope', '$state', 'AuthService', function ($rootScope, $state, Auth) {
+
+    $rootScope.$on("$stateChangeStart", function (event, toState, toParams, fromState, fromParams) {
+        console.log(toState);
+        if(!("data.access" in toState)){
+            // $rootScope.error = "Access undefined for this state";
+            // event.preventDefault();
+        }
+        else if (!Auth.authorize(toState.data.access)) {
+            $rootScope.error = "Seems like you tried accessing a route you don't have access to...";
+            event.preventDefault();
+
+            if(fromState.url === '^') {
+                if(Auth.isLoggedIn()) {
+                    $state.go('home');
+                } else {
+                    $rootScope.error = null;
+                    $state.go('auth.login');
+                }
+            }
+        }
+    });
+
+}]);
+
+mitinApp.controller('HeaderCtrl', function($scope, $rootScope,AuthService){
+	console.log(AuthService.isLoggedIn(AuthService.user));
+	// console.log( !! AuthService.user);
+	  $scope.global = {
+        authenticated: !! AuthService.isLoggedIn(AuthService.user),
+        user: AuthService.user
+      };
+	    // $scope.userRoles = Auth.userRoles;
+	    // $scope.accessLevels = Auth.accessLevels;
 	$rootScope.$on('loggedin', function() {
-	  console.log('got loggedin');
-	  console.log($rootScope.user);
       $scope.global = {
         authenticated: !! $rootScope.user,
         user: $rootScope.user
@@ -96,16 +130,19 @@ mitinApp.controller('MeetingController', function($scope,$location, $stateParams
 		});
 	};
 	$scope.create= function(isValid){
-		$scope.meeting.starttime = rome.find(startTime).getDate();
-		$scope.meeting.endtime = rome.find(endTime).getDate();
-		MeetingService.save($scope.meeting, function(response){
-			$location.path('meetings/' + response._id);
-		});
-		$scope.meeting = {};
+		console.log(isValid);
+		if(isValid){
+			$scope.meeting.starttime = rome.find(startTime).getDate();
+			$scope.meeting.endtime = rome.find(endTime).getDate();
+			MeetingService.save($scope.meeting, function(response){
+				$location.path('meetings/' + response._id);
+			});
+			$scope.meeting = {};
+		}
 	}
 });
 
-mitinApp.controller('UserCtrl', function($scope, $rootScope, $location, $stateParams,$http){
+mitinApp.controller('UserCtrl', function($scope, $rootScope, $location, $stateParams,$http,$cookieStore){
 	$scope.user = {};
 
 	$scope.login = function(){
@@ -116,12 +153,8 @@ mitinApp.controller('UserCtrl', function($scope, $rootScope, $location, $statePa
           .success(function(response) {
             // authentication OK
             $scope.loginError = 0;
-			console.log(response);
-
-
             $rootScope.user = response.user;
-             console.log('response');
-            console.log($rootScope.user);
+            $cookieStore.put('user',$rootScope.user);
             $rootScope.$emit('loggedin');
             if (response.redirect) {
               if (window.location.href === response.redirect) {
@@ -155,10 +188,9 @@ mitinApp.controller('UserCtrl', function($scope, $rootScope, $location, $statePa
 		    $rootScope.user = $scope.user;
 		    $rootScope.authenticated = true;
 
-		    console.log($rootScope.user);
-		    
-		    $rootScope.$emit('/users/loggedin');
 		    // console.log($rootScope.user);
+		    
+		    $rootScope.$emit('loggedin');
 		    // $location.url('/');
 		    $location.path('/home');
 		  })

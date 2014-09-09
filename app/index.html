@@ -48,7 +48,7 @@
 				    <ul class="navbar-nav nav" data-ng-show="global.authenticated">
 				      <li class="dropdown">
 				        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-				          {{global.user.name}} <b class="caret"></b>
+				          {{global.user.username}} <b class="caret"></b>
 				        </a>
 				        <ul class="dropdown-menu">
 				          <li><a href="/users/logout">Sign out</a>
@@ -72,13 +72,16 @@
 <script type="text/javascript" src="lib/angular/angular.js"></script>
 <script type="text/javascript" src="lib/angular-route/angular-route.js"></script>
 <script type="text/javascript" src="lib/angular-ui-router/angular-ui-router.js"></script>
-<script type="text/javascript" src="lib/angular-ui-router/angular-ui-router.js"></script>
+<script type="text/javascript" src="lib/angular-cookies/angular-cookies.js"></script>
+<script type="text/javascript" src="lib/bootstrap-tagsinput/bootstrap-tagsinput.js"></script>
+<script type="text/javascript" src="lib/bootstrap-tagsinput/bootstrap-tagsinput-angular.js"></script>
 <script type="text/javascript" src="lib/bootstrap/js/bootstrap.js"></script>
 <script type="text/javascript" src="lib/typeahead.js/typeahead.bundle.js"></script>
 <script type="text/javascript" src="lib/rome/rome.js"></script>
 <script type="text/javascript" src="lib/moment/moment.js"></script>
+<script type="text/javascript" src="js/routingConfig.js"></script>
 <script type="text/javascript" src="controllers/meeting-controller.js"></script>
 <script type="text/javascript" src="services/meeting-service.js"></script>
-<script type="text/javascript" src="services/interceptor.js"></script>
+<script type="text/javascript" src="services/user-service.js"></script>
 </body>
 </html>

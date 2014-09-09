@@ -4,7 +4,7 @@
 //   _ = require('underscore')
 //   , passport =        require('passport')
 //   , LocalStrategy =   require('passport-local').Strategy
-//   , userRoles =       require('../../client/js/routingConfig').userRoles;
+//   , userRoles =       require('../../app/js/routingConfig').userRoles;
 
 // /**
 //  * Module dependencies.

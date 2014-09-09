@@ -22,4 +22,4 @@ userApp.config(function($urlRouterProvider,$stateProvider){
       })
 });
 
-angular.bootstrap($('#app2'),['userApp']);
+// angular.bootstrap($('#app2'),['userApp']);

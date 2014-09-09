@@ -1,8 +1,9 @@
 var express = require('express');
+var logger = require('morgan');
 var mongoose = require('mongoose'); 
 // var path = require('path');
 // var favicon = require('static-favicon');
-// var logger = require('morgan');
+
 var cookieParser = require('cookie-parser');
 var session = require('express-session');
 var expressValidator = require('express-validator');
@@ -13,6 +14,7 @@ var http = require('http');
 var flash = require('connect-flash');
 
 var users = require('./models/user.js');
+require('./models/meeting.js');
 
 
 // var routes = require('./routes/index');
@@ -25,7 +27,7 @@ app.use(express.static(__dirname + '/app'));
 
 var User = mongoose.model('User');
 
-mongoose.connect('mongodb://localhost:27017/mean-dev');
+mongoose.connect('mongodb://localhost:27017/abc');
 
 
 // app.use(favicon());
@@ -42,6 +44,7 @@ app.use( bodyParser.urlencoded() );
 app.use(passport.initialize());
 app.use(passport.session());
 
+// app.use(logger());
 app.use(flash());
 
 // app.use('/', routes);
@@ -98,7 +101,6 @@ passport.deserializeUser(function(id, done) {
  User.findOne({
 	    email: id
 	  }, function(err, user) {
-	  	console.log(user);
 	    done(null, user);
 	  });
 });
