@@ -13,7 +13,7 @@
 	<div class="navbar navbar-inverse navbar-fixed-top" data-role="navigation">
 		<div class="page-header" data-ng-controller="HeaderCtrl">
 			  <div class="logo pull-left">
-			    <a class="navbar-brand" ui-sref="home">SpringRoll</a>
+			    <a class="navbar-brand" ui-sref="/">SpringRoll</a>
 			  </div>
 			  <div class="left pull-left"  data-ng-show="global.authenticated">
 		  		  <ul class="navbar-nav nav">
@@ -39,10 +39,10 @@
 				      <div class="pull-right" data-ng-show="global.authenticated"></div>
 				    </div>
 				    <ul class="navbar-nav nav" data-ng-hide="global.authenticated">
-				      <li><a ui-sref='auth.register' ui-sref-active="active">Register</a>
+				      <li><a ui-sref='register' ui-sref-active="active">Register</a>
 				      </li>
 				      <li class="divider-vertical"></li>
-				      <li><a ui-sref='auth.login'>Login</a>
+				      <li><a ui-sref='login'>Login</a>
 				      </li>
 				    </ul>
 				    <ul class="navbar-nav nav" data-ng-show="global.authenticated">

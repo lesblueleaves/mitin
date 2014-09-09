@@ -2,7 +2,7 @@ var passport =  require('passport')
     , mongoose = require('mongoose')
     // , User =      require('./models/User.js')
     , User = mongoose.model('User'),
-    userRoles = require('../../client/js/routingConfig').userRoles;
+    userRoles = require('../../app/js/routingConfig').userRoles;
 
 module.exports ={
 	register: function(req, res, next){

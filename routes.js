@@ -89,13 +89,13 @@ var routes = [
                 role = req.user.role;
                 username = req.user.username;
             }
-            console.login(req.user);
+            console.log(req.user);
             res.cookie('user', JSON.stringify({
                 'username': username,
                 'role': role
             }));
-            res.render('/');
-            // res.send('default response');
+            // res.render('/index');
+            res.send('default response');
         }]
     }
 ];

@@ -1,6 +1,6 @@
 var mitinApp = angular.module('meetingApp',['ngCookies', 'meetingApp.MeetingService','ui.router']);
 
-mitinApp.config(function($stateProvider, $urlRouterProvider,$httpProvider) {
+mitinApp.config(function($stateProvider, $urlRouterProvider,$httpProvider,$locationProvider) {
 	var checkLoggedin = function($q, $timeout, $http, $location){
 		var deferred = $q.defer();
 		$http.get('/users/loggedin').success(function(user){
@@ -17,83 +17,116 @@ mitinApp.config(function($stateProvider, $urlRouterProvider,$httpProvider) {
 
 	// $httpProvider.interceptors.push('srInterceptor');
     $stateProvider
+    	.state('404', {
+	            url: '/404/',
+	            templateUrl: 'views/404.html',
+	            access: 'public'
+	        })
+    	.state('index', {
+	            abstract: true,
+	            template: "<ui-view/>",
+	            access: 'public'
+	        })
 	    .state('home', {
 	            url: '/',
-	            templateUrl: 'views/home.html'
+	            templateUrl: 'views/home.html',
+	            access: 'private'
 	        })
         .state('meetings-all', {
-            url: '/meetings/all',
+            url: '/meetings',
             templateUrl: 'views/meeting/list.html',
             controller: 'MeetingCtrl',
-             resolve: {
+            resolve: {
 	          loggedin: checkLoggedin
-	        }
+	        },
+	        access: 'private'
         })
         .state('meetings-create', {
-        	url: '/meeting',
+        	url: '/meeting/',
             templateUrl: 'views/meeting/create.html',
-            controller: 'MeetingController'
+            controller: 'MeetingController',
+            resolve: {
+	          loggedin: checkLoggedin
+	        },
+	        access: 'private'
         })
 		.state('meetings-view', {
-        	url: '/meetings/:meetingId',
+        	url: '/meetings/:meetingId/',
             templateUrl: 'views/meeting/view.html',
-            controller: 'MeetingController'
+            controller: 'MeetingController',
+            access: 'private'
         })
-		.state('auth', {
-        	url: '/auth',
+		.state('user', {
+			abstract: true,
+            // template: "<ui-view/>",
+        	// url: '/user',
             templateUrl: 'views/user/index.html',
-            controller: 'UserCtrl'
+            controller: 'UserCtrl',
+            access: 'private'
         })
-        .state('auth.register', {
-	        url: '/users/register',
+        .state('register', {
+	        url: '/users/register/',
 	        templateUrl: 'views/user/register.html',
-	        controller: 'UserCtrl'
+	        controller: 'UserCtrl',
+	        access: 'public'
 	        // resolve: {
 	        //   loggedin: checkLoggedOut
 	        // }
       	})
-        .state('auth.login', {
-	        url: '/users/login',
+        .state('login', {
+	        url: '/users/login/',
 	        templateUrl: 'views/user/login.html',
-	        controller: 'UserCtrl'
+	        controller: 'UserCtrl',
+	        access: 'public'
 	        // resolve: {
 	        //   loggedin: checkLoggedOut
 	        // }
       	});
-    $urlRouterProvider.otherwise('/home');
+    $urlRouterProvider.otherwise('/');
+    $locationProvider.html5Mode(true);
 
     $httpProvider.interceptors.push(function($q, $location) {
         return {
             'responseError': function(response) {
+            	console.log(response.status)
                 if(response.status === 401 || response.status === 403) {
+                	console.log('40*');
+                	// $state.go('users.login');
                     $location.path('/users/login');
                 }
+                // else if(response.status === 404){
+
+                // }
                 return $q.reject(response);
             }
         };
     });
 })
-.run(['$rootScope', '$state', 'AuthService', function ($rootScope, $state, Auth) {
+.run(['$rootScope', '$state', '$location','AuthService', function ($rootScope, $state, $location, AuthService) {
 
     $rootScope.$on("$stateChangeStart", function (event, toState, toParams, fromState, fromParams) {
         console.log(toState);
-        if(!("data.access" in toState)){
+        console.log(fromState);
+        console.log(AuthService.isLoggedIn());
+        // if(!("data.access" in toState)){
             // $rootScope.error = "Access undefined for this state";
             // event.preventDefault();
-        }
-        else if (!Auth.authorize(toState.data.access)) {
-            $rootScope.error = "Seems like you tried accessing a route you don't have access to...";
-            event.preventDefault();
+        // }
+         // if (!Auth.authorize(toState.data.access)) {
+         //    $rootScope.error = "Seems like you tried accessing a route you don't have access to...";
+         //    event.preventDefault();
 
-            if(fromState.url === '^') {
-                if(Auth.isLoggedIn()) {
+            if(fromState.url === '^' && toState.access === 'private') {
+            	console.log('state run');
+                if(AuthService.isLoggedIn()) {
                     $state.go('home');
                 } else {
                     $rootScope.error = null;
-                    $state.go('auth.login');
+                    $state.go('login');
+                    // $location.path('/users/login');
                 }
             }
-        }
+        // }
     });
 
 }]);
@@ -168,9 +201,10 @@ mitinApp.controller('UserCtrl', function($scope, $rootScope, $location, $statePa
             }
           })
           .error(function() {
+          	console.log('got err!');
             $scope.loginerror = 'Authentication failed.';
           });
-	}
+	},
 
 	$scope.register = function() {
 		$scope.usernameError = null;
