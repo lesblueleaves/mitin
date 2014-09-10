@@ -56,7 +56,6 @@ angular.module('meetingApp')
             }).error(error);
         },
         logout: function(success, error) {
-            console.log('logout');
             $http.post('/users/logout').success(function(){
                 // changeUser({
                 //     username: '',

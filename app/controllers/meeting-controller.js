@@ -2,6 +2,9 @@ var mitinApp = angular.module('meetingApp',['ngCookies', 'meetingApp.MeetingServ
 
 mitinApp.config(function($stateProvider, $urlRouterProvider,$httpProvider,$locationProvider) {
 	var access = routingConfig.accessLevels;
+	function checkLoggedOut(){
+		console.log('checkLoggedOut');
+	}
     $stateProvider
     	.state('404', {
 	            url: '/404',
@@ -9,7 +12,7 @@ mitinApp.config(function($stateProvider, $urlRouterProvider,$httpProvider,$locat
 	            access: access.public
 	        })
     	.state('user', {
-	            url:'/user',
+	            url:'/users',
 	            templateUrl: "views/user/index.html",
 	            access: access.public
 	        })
@@ -19,13 +22,10 @@ mitinApp.config(function($stateProvider, $urlRouterProvider,$httpProvider,$locat
 	            access: access.public
 	        })
 	   	.state('user.register', {
-	        url: '/register/',
+	        url: '/register',
 	        templateUrl: 'views/user/register.html',
 	        controller: 'UserCtrl',
 	        access: access.public
-	        // resolve: {
-	        //   loggedin: checkLoggedOut
-	        // }
       	})
         .state('user.login', {
 	        url: '/login',
@@ -38,11 +38,10 @@ mitinApp.config(function($stateProvider, $urlRouterProvider,$httpProvider,$locat
       	})
       	.state('user.logout', {
 	        url: '/logout',
-	        // templateUrl: 'views/user/login.html',
-	        controller: 'logoutCtrl'
-	        // resolve: {
-	        //   loggedin: checkLoggedOut
-	        // }
+	        controller: 'logoutCtrl',
+	        resolve: {
+	          loggedin: checkLoggedOut
+	        }
       	})
         .state('meetings-all', {
             url: '/meetings-all',
@@ -50,15 +49,14 @@ mitinApp.config(function($stateProvider, $urlRouterProvider,$httpProvider,$locat
             controller: 'MeetingController',
         })
         .state('meetings-create', {
-        	url: '/meetings-create/',
+        	url: '/meetings-create',
             templateUrl: 'views/meeting/create.html',
             controller: 'MeetingController',
         })
 		.state('meetings-view', {
         	url: '/meetings/:meetingId',
             templateUrl: 'views/meeting/view.html',
-            controller: 'MeetingController',
-            access: access.user
+            controller: 'MeetingController'
         });
         
     $urlRouterProvider.otherwise('/');
@@ -76,7 +74,7 @@ mitinApp.config(function($stateProvider, $urlRouterProvider,$httpProvider,$locat
     });
 });
 
-var routesThatDontRequireAuth = ['/users/register/','/users/login/'];
+var routesThatDontRequireAuth = ['/users/register','/users/login'];
 
 // check if current location matches route  
 var routeClean = function (route) {
@@ -85,18 +83,22 @@ return _.find(routesThatDontRequireAuth,
     return _(route).startsWith(noAuthRoute);
   });
 };
-mitinApp.run(function ($rootScope, $state, $location, AuthService) {
+mitinApp.run(function ($rootScope, $state, $location,$cookieStore,$window, AuthService) {
 
     $rootScope.$on("$stateChangeStart", function (event, toState, toParams, fromState, fromParams) {
     	console.log('stateChangeStart...');
-    	console.log(AuthService.user);	
-	    if (!routeClean($location.url()) && !AuthService.isLoggedIn()) {
+    	console.log(routeClean($location.url()));
+
+    	var cuser;
+    	if($window.sessionStorage.user) cuser = JSON.parse(window.sessionStorage.user)
+    	console.log(cuser);
+	    if (!routeClean($location.url()) && !cuser) {
 	      // redirect back to login
 	      $location.path('/login');
 	    }else{
 	    	  $rootScope.global = {
-		        authenticated: !! AuthService.user,
-		        user: AuthService.user
+		        authenticated: !! cuser,
+		        user: cuser
 		      };
 	    }
 
@@ -105,21 +107,14 @@ mitinApp.run(function ($rootScope, $state, $location, AuthService) {
 });
 
 mitinApp.controller('HeaderCtrl', function($scope, $rootScope,$cookieStore, AuthService){
-	$rootScope.$on('loggedin', function() {
-		console.log('headin');
-		var currentUserObject = $cookieStore.get('user');
-      $scope.global = {
-        authenticated: !!currentUserObject,
-        user: currentUserObject.user
-      };
-    });
-});
-
-
-mitinApp.controller('MeetingCtrl', function($scope, $http){
-	// $http.get('/meetings/all').success(function(data){
-	// 	$scope.meetings = data;
-	// });
+	// $rootScope.$on('loggedin', function() {
+	// 	console.log('headin');
+	// 	var currentUserObject = $cookieStore.get('user');
+ //      $scope.global = {
+ //        authenticated: !!currentUserObject,
+ //        user: currentUserObject.user
+ //      };
+ //    });
 });
 
 mitinApp.controller('MeetingController', function($scope,$location, $http, $stateParams, MeetingService){
@@ -147,16 +142,16 @@ mitinApp.controller('MeetingController', function($scope,$location, $http, $stat
 	};
 });
 
-mitinApp.controller('UserCtrl', function($scope, $rootScope, $location, $stateParams,$state, $http,$cookieStore,AuthService){
-	// $scope.user = {};
+mitinApp.controller('UserCtrl', function($scope, $rootScope, $location, $stateParams,$state, $http,$cookieStore,$window, AuthService){
+	$scope.user = {};
 	$scope.login = function(){
 		
-		var success =function(user){
+		var success =function(userObject){
 			$scope.loginError = 0;
-	        $rootScope.user = user;
-	        $cookieStore.put('user',$rootScope.user);
+	        // $rootScope.user = user;
+	        // $cookieStore.put('user',$rootScope.user);
+	        $window.sessionStorage.user = JSON.stringify(userObject.user);
 	        $rootScope.$emit('loggedin');
-	         console.log('redirecting');	
 	          // $location.path('/');
 	          $state.go('user.home');
 		};
@@ -164,10 +159,6 @@ mitinApp.controller('UserCtrl', function($scope, $rootScope, $location, $statePa
 	            $scope.loginerror = 'Authentication failed.';
 		};
 		AuthService.login($scope.user.email, $scope.user.password,success, error);
-	};
-
-	$scope.logout = function(){
-		AuthService.logout();
 	};
 
 	$scope.register = function() {
@@ -203,10 +194,19 @@ mitinApp.controller('UserCtrl', function($scope, $rootScope, $location, $statePa
 	};
 });
 
-mitinApp.controller('logoutCtrl', function($location, AuthService){
+mitinApp.controller('logoutCtrl', function($location,$window, $state,$rootScope, AuthService){
+
 	AuthService.logout(function() {
-            $location.path('/login');
-        }, function() {
+		delete $window.sessionStorage.user;	
+		// delete $cookieStore.user
+		// $rootScope.$emit('loggedout');
+
+        $rootScope.global = {
+		        authenticated: false,
+		        user: {}
+		      };
+        $state.go('user.login');
+       }, function() {
             $rootScope.error = "Failed to logout";
-        });
+     });
 });
