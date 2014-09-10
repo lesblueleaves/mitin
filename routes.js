@@ -34,11 +34,11 @@ var routes = [
         httpMethod: 'POST',
         middleware: [AuthCtrl.login]
     },
-    // {
-    //     path: '/logout',
-    //     httpMethod: 'POST',
-    //     middleware: [AuthCtrl.logout]
-    // },
+    {
+        path: '/users/logout',
+        httpMethod: 'POST',
+        middleware: [AuthCtrl.logout]
+    },
     //====== Meetings
     {
         path: '/meetings/all',
@@ -84,18 +84,19 @@ var routes = [
         path: '/*',
         httpMethod: 'GET',
         middleware: [function(req, res) {
-            var role = userRoles.public, username = '';
-            if(req.user) {
-                role = req.user.role;
-                username = req.user.username;
-            }
-            console.log(req.user);
-            res.cookie('user', JSON.stringify({
-                'username': username,
-                'role': role
-            }));
-            // res.render('/index');
-            res.send('default response');
+            // var role = userRoles.public, username = '',email='';
+            // if(req.user) {
+            //     role = req.user.role || userRoles.user;
+            //     username = req.user.username;
+            //     email = req.user.email;
+            // }
+            // // console.log(req.user);
+            // res.cookie('user', JSON.stringify({
+            //     'username': username,
+            //     'email':email,
+            //     'role': role
+            // }));
+            res.sendfile('./app/index.html'); 
         }]
     }
 ];
@@ -134,7 +135,6 @@ function ensureAuthorized(req, res, next) {
         // req.user.roles[0] = userRoles.admin;
       role = userRoles.admin; 
     }
-    console.log('routing');
     console.log(req.route.path);
     // console.log(req.route.stack);
     var accessLevel = _.findWhere(routes, { path: req.route.path, httpMethod: req.route.stack[0].method.toUpperCase() }).accessLevel || accessLevels.public;

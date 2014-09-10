@@ -2,14 +2,12 @@
 
 angular.module('meetingApp')
 .factory('AuthService', function($http, $cookieStore){
-
-    console.log('cookie');
-    console.log($cookieStore.get('user'));
     var accessLevels = routingConfig.accessLevels
         , userRoles = routingConfig.userRoles
-        , currentUser = $cookieStore.get('user') || { username: '', role: userRoles.public };
+        // , currentUser = $cookieStore.get('user') || { username: '', role: userRoles.public };
+        , currentUser;
 
-    $cookieStore.remove('user');
+    // $cookieStore.remove('user');
 
     function changeUser(user) {
         angular.extend(currentUser, user);
@@ -20,14 +18,19 @@ angular.module('meetingApp')
             if(role === undefined) {
                 role = currentUser.role;
             }
+            console.log('currentUser');
+            console.log(currentUser);
             return accessLevel.bitMask & role.bitMask;
         },
         isLoggedIn: function(user) {
-            if(user === undefined) {
-                user = currentUser;
-            }
-            console.log(user);
-            return user.role.title === userRoles.user.title || user.role.title === userRoles.admin.title;
+            $http.get('/users/loggedin').success(function(user){
+             currentUser = user;
+        });
+            return currentUser;
+            // if(user === undefined) {
+            //     user = currentUser;
+            // }
+            // return user.role.title === userRoles.user.title || user.role.title === userRoles.admin.title;
         },
         register: function(user, success, error) {
             $http.post('/users/register', user).success(function(res) {
@@ -35,18 +38,31 @@ angular.module('meetingApp')
                 success();
             }).error(error);
         },
-        login: function(user, success, error) {
-            $http.post('/uses/login', user).success(function(user){
-                changeUser(user);
-                success(user);
+        // login: function(user, success, error) {
+        //     $http.post('/uses/login', user).success(function(user){
+        //         changeUser(user);
+        //         success(user);
+        //     }).error(error);
+        // },
+        login:function(email,pass,success,error){
+            $http.post('/users/login', {
+              email: email,
+              password: pass
+            }).success(function(res){
+                // changeUser(res);
+                currentUser = res;
+                console.log(res);
+                success(res);
             }).error(error);
         },
         logout: function(success, error) {
-            $http.post('/user/logout').success(function(){
-                changeUser({
-                    username: '',
-                    role: userRoles.public
-                });
+            console.log('logout');
+            $http.post('/users/logout').success(function(){
+                // changeUser({
+                //     username: '',
+                //     role: userRoles.public
+                // });
+                currentUser=null;
                 success();
             }).error(error);
         },

@@ -52,5 +52,9 @@ login: function(req, res, next){
 		});
 	})(req, res, next);
  },
-	 
+
+ logout: function(req, res){
+ 	  req.logout();
+      res.send(200);
+ }	 
 };

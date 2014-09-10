@@ -1,161 +1,133 @@
-var mitinApp = angular.module('meetingApp',['ngCookies', 'meetingApp.MeetingService','ui.router']);
+var mitinApp = angular.module('meetingApp',['ngCookies', 'meetingApp.MeetingService','ui.router','underscore']);
 
 mitinApp.config(function($stateProvider, $urlRouterProvider,$httpProvider,$locationProvider) {
-	var checkLoggedin = function($q, $timeout, $http, $location){
-		var deferred = $q.defer();
-		$http.get('/users/loggedin').success(function(user){
-			// Authenticated
-        	if (user !== '0') $timeout(deferred.resolve);
-	        // Not Authenticated
-	        else {
-	          $timeout(deferred.reject);
-	          $location.url('/users/login');
-	        }
-		});
-		return deferred.promise;
-	};
-
-	// $httpProvider.interceptors.push('srInterceptor');
+	var access = routingConfig.accessLevels;
     $stateProvider
     	.state('404', {
-	            url: '/404/',
+	            url: '/404',
 	            templateUrl: 'views/404.html',
-	            access: 'public'
+	            access: access.public
 	        })
-    	.state('index', {
-	            abstract: true,
-	            template: "<ui-view/>",
-	            access: 'public'
+    	.state('user', {
+	            url:'/user',
+	            templateUrl: "views/user/index.html",
+	            access: access.public
 	        })
-	    .state('home', {
-	            url: '/',
-	            templateUrl: 'views/home.html',
-	            access: 'private'
+    	.state('user.home', {
+	            url:'/home',
+	            templateUrl: "views/home.html",
+	            access: access.public
 	        })
-        .state('meetings-all', {
-            url: '/meetings',
-            templateUrl: 'views/meeting/list.html',
-            controller: 'MeetingCtrl',
-            resolve: {
-	          loggedin: checkLoggedin
-	        },
-	        access: 'private'
-        })
-        .state('meetings-create', {
-        	url: '/meeting/',
-            templateUrl: 'views/meeting/create.html',
-            controller: 'MeetingController',
-            resolve: {
-	          loggedin: checkLoggedin
-	        },
-	        access: 'private'
-        })
-		.state('meetings-view', {
-        	url: '/meetings/:meetingId/',
-            templateUrl: 'views/meeting/view.html',
-            controller: 'MeetingController',
-            access: 'private'
-        })
-		.state('user', {
-			abstract: true,
-            // template: "<ui-view/>",
-        	// url: '/user',
-            templateUrl: 'views/user/index.html',
-            controller: 'UserCtrl',
-            access: 'private'
-        })
-        .state('register', {
-	        url: '/users/register/',
+	   	.state('user.register', {
+	        url: '/register/',
 	        templateUrl: 'views/user/register.html',
 	        controller: 'UserCtrl',
-	        access: 'public'
+	        access: access.public
 	        // resolve: {
 	        //   loggedin: checkLoggedOut
 	        // }
       	})
-        .state('login', {
-	        url: '/users/login/',
+        .state('user.login', {
+	        url: '/login',
 	        templateUrl: 'views/user/login.html',
 	        controller: 'UserCtrl',
-	        access: 'public'
+	        access: access.public
 	        // resolve: {
 	        //   loggedin: checkLoggedOut
 	        // }
-      	});
+      	})
+      	.state('user.logout', {
+	        url: '/logout',
+	        // templateUrl: 'views/user/login.html',
+	        controller: 'logoutCtrl'
+	        // resolve: {
+	        //   loggedin: checkLoggedOut
+	        // }
+      	})
+        .state('meetings-all', {
+            url: '/meetings-all',
+            templateUrl: 'views/meeting/list.html',
+            controller: 'MeetingController',
+        })
+        .state('meetings-create', {
+        	url: '/meetings-create/',
+            templateUrl: 'views/meeting/create.html',
+            controller: 'MeetingController',
+        })
+		.state('meetings-view', {
+        	url: '/meetings/:meetingId',
+            templateUrl: 'views/meeting/view.html',
+            controller: 'MeetingController',
+            access: access.user
+        });
+        
     $urlRouterProvider.otherwise('/');
-    $locationProvider.html5Mode(true);
+    // $locationProvider.html5Mode(true);
 
     $httpProvider.interceptors.push(function($q, $location) {
         return {
             'responseError': function(response) {
-            	console.log(response.status)
                 if(response.status === 401 || response.status === 403) {
-                	console.log('40*');
-                	// $state.go('users.login');
                     $location.path('/users/login');
                 }
-                // else if(response.status === 404){
-
-                // }
                 return $q.reject(response);
             }
         };
     });
-})
-.run(['$rootScope', '$state', '$location','AuthService', function ($rootScope, $state, $location, AuthService) {
+});
+
+var routesThatDontRequireAuth = ['/users/register/','/users/login/'];
+
+// check if current location matches route  
+var routeClean = function (route) {
+return _.find(routesThatDontRequireAuth,
+  function (noAuthRoute) {
+    return _(route).startsWith(noAuthRoute);
+  });
+};
+mitinApp.run(function ($rootScope, $state, $location, AuthService) {
 
     $rootScope.$on("$stateChangeStart", function (event, toState, toParams, fromState, fromParams) {
-        console.log(toState);
-        console.log(fromState);
-        console.log(AuthService.isLoggedIn());
-        // if(!("data.access" in toState)){
-            // $rootScope.error = "Access undefined for this state";
-            // event.preventDefault();
-        // }
-         // if (!Auth.authorize(toState.data.access)) {
-         //    $rootScope.error = "Seems like you tried accessing a route you don't have access to...";
-         //    event.preventDefault();
+    	console.log('stateChangeStart...');
+    	console.log(AuthService.user);	
+	    if (!routeClean($location.url()) && !AuthService.isLoggedIn()) {
+	      // redirect back to login
+	      $location.path('/login');
+	    }else{
+	    	  $rootScope.global = {
+		        authenticated: !! AuthService.user,
+		        user: AuthService.user
+		      };
+	    }
 
-            if(fromState.url === '^' && toState.access === 'private') {
-            	console.log('state run');
-                if(AuthService.isLoggedIn()) {
-                    $state.go('home');
-                } else {
-                    $rootScope.error = null;
-                    $state.go('login');
-                    // $location.path('/users/login');
-                }
-            }
-        // }
     });
 
-}]);
+});
 
-mitinApp.controller('HeaderCtrl', function($scope, $rootScope,AuthService){
-	console.log(AuthService.isLoggedIn(AuthService.user));
-	// console.log( !! AuthService.user);
-	  $scope.global = {
-        authenticated: !! AuthService.isLoggedIn(AuthService.user),
-        user: AuthService.user
-      };
-	    // $scope.userRoles = Auth.userRoles;
-	    // $scope.accessLevels = Auth.accessLevels;
+mitinApp.controller('HeaderCtrl', function($scope, $rootScope,$cookieStore, AuthService){
 	$rootScope.$on('loggedin', function() {
+		console.log('headin');
+		var currentUserObject = $cookieStore.get('user');
       $scope.global = {
-        authenticated: !! $rootScope.user,
-        user: $rootScope.user
+        authenticated: !!currentUserObject,
+        user: currentUserObject.user
       };
     });
 });
 
 
 mitinApp.controller('MeetingCtrl', function($scope, $http){
-	$http.get('/meetings/all').success(function(data){
-		$scope.meetings = data;
-	});
+	// $http.get('/meetings/all').success(function(data){
+	// 	$scope.meetings = data;
+	// });
 });
 
-mitinApp.controller('MeetingController', function($scope,$location, $stateParams, MeetingService){
+mitinApp.controller('MeetingController', function($scope,$location, $http, $stateParams, MeetingService){
+	$scope.find = function(){
+		$http.get('/meetings/all').success(function(data){
+		$scope.meetings = data;
+		});
+	};
 	$scope.findOne = function(){
 		var meetingId =  $stateParams.meetingId;
 		MeetingService.findOne(meetingId, function(data){
@@ -168,43 +140,35 @@ mitinApp.controller('MeetingController', function($scope,$location, $stateParams
 			$scope.meeting.starttime = rome.find(startTime).getDate();
 			$scope.meeting.endtime = rome.find(endTime).getDate();
 			MeetingService.save($scope.meeting, function(response){
-				$location.path('meetings/' + response._id);
+				$location.path('/meetings/' + response._id);
 			});
 			$scope.meeting = {};
 		}
-	}
+	};
 });
 
-mitinApp.controller('UserCtrl', function($scope, $rootScope, $location, $stateParams,$http,$cookieStore){
-	$scope.user = {};
-
+mitinApp.controller('UserCtrl', function($scope, $rootScope, $location, $stateParams,$state, $http,$cookieStore,AuthService){
+	// $scope.user = {};
 	$scope.login = function(){
-		$http.post('/users/login', {
-          email: $scope.user.email,
-          password: $scope.user.password
-        })
-          .success(function(response) {
-            // authentication OK
-            $scope.loginError = 0;
-            $rootScope.user = response.user;
-            $cookieStore.put('user',$rootScope.user);
-            $rootScope.$emit('loggedin');
-            if (response.redirect) {
-              if (window.location.href === response.redirect) {
-                //This is so an admin user will get full admin page
-                window.location.reload();
-              } else {
-                window.location = response.redirect;
-              }
-            } else {
-              $location.url('/home');
-            }
-          })
-          .error(function() {
-          	console.log('got err!');
-            $scope.loginerror = 'Authentication failed.';
-          });
-	},
+		
+		var success =function(user){
+			$scope.loginError = 0;
+	        $rootScope.user = user;
+	        $cookieStore.put('user',$rootScope.user);
+	        $rootScope.$emit('loggedin');
+	         console.log('redirecting');	
+	          // $location.path('/');
+	          $state.go('user.home');
+		};
+		var error = function(){
+	            $scope.loginerror = 'Authentication failed.';
+		};
+		AuthService.login($scope.user.email, $scope.user.password,success, error);
+	};
+
+	$scope.logout = function(){
+		AuthService.logout();
+	};
 
 	$scope.register = function() {
 		$scope.usernameError = null;
@@ -226,7 +190,7 @@ mitinApp.controller('UserCtrl', function($scope, $rootScope, $location, $statePa
 		    
 		    $rootScope.$emit('loggedin');
 		    // $location.url('/');
-		    $location.path('/home');
+		    $location.path('/');
 		  })
 		  .error(function(error) {
 		    // Error: authentication failed
@@ -237,4 +201,12 @@ mitinApp.controller('UserCtrl', function($scope, $rootScope, $location, $statePa
 		    } else $scope.registerError = error;
 		  });
 	};
+});
+
+mitinApp.controller('logoutCtrl', function($location, AuthService){
+	AuthService.logout(function() {
+            $location.path('/login');
+        }, function() {
+            $rootScope.error = "Failed to logout";
+        });
 });

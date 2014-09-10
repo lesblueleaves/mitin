@@ -9,6 +9,8 @@ module.exports ={
 	},
 
 	findOne: function(req, res){
+		console.log('find one');
+		console.log(req.params.meetingId);
 		Meeting.findOne({'_id':req.params.meetingId}, function(err, meeting){
 		if (err){
 			console.error(err);

@@ -612,9 +612,9 @@
    * data-role=tagsinput
    */
   $(function() {
-   var datarole= $("input[data-role=tagsinput], select[multiple][data-role=tagsinput]");
-   var seltag= $('#seltag');
+   // var datarole= $("input[data-role=tagsinput], select[multiple][data-role=tagsinput]");
+   // var seltag= $('#seltag');
    // datarole.tagsinput();
-   seltag.tagsinput();
+   // seltag.tagsinput();
   });
 })(window.jQuery);

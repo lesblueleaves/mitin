@@ -1,8 +1,10 @@
+<div data-ng-init="find()">
 <ul class="col-md-9 meetings unstyled">
     <li data-ng-repeat="meeting in meetings">
       <h3>
         <div>
-        <a data-ng-href="#!/meetings/{{meeting._id}}">{{meeting.title}}</a>
+        <!-- <a data-ng-href="/#!/meetings/{{meeting._id}}">{{meeting.title}}</a> -->
+        <a ui-sref="meetings-view({meetingId:meeting._id})">{{meeting.title}}</a>
         </div>
         <span data-ng-if="hasAuthorization(meeting)">
           <a class="btn" href="/#!/meetings/{{meeting._id}}/edit">
@@ -28,3 +30,4 @@
     </li>
   </ul>
 <h1 data-ng-hide="!meetings || meetings.length">No Meetings yet. <br> Why don't you <a href="/#!/meetings/create">Create One</a>?</h1>
+</div>

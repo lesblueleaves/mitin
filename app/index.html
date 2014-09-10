@@ -13,12 +13,12 @@
 	<div class="navbar navbar-inverse navbar-fixed-top" data-role="navigation">
 		<div class="page-header" data-ng-controller="HeaderCtrl">
 			  <div class="logo pull-left">
-			    <a class="navbar-brand" ui-sref="/">SpringRoll</a>
+			    <a class="navbar-brand">SpringRoll</a>
 			  </div>
 			  <div class="left pull-left"  data-ng-show="global.authenticated">
 		  		  <ul class="navbar-nav nav">
 				      <li>
-				        <!-- <a href="#/meetings/all">Meetings</a> -->
+				        <!-- <a href="/meetings-all">Meetings</a> -->
 				        <a ui-sref='meetings-all'>Meetings</a>
 				      </li>
 				       <li>
@@ -39,10 +39,10 @@
 				      <div class="pull-right" data-ng-show="global.authenticated"></div>
 				    </div>
 				    <ul class="navbar-nav nav" data-ng-hide="global.authenticated">
-				      <li><a ui-sref='register' ui-sref-active="active">Register</a>
+				      <li><a ui-sref='user.register' ui-sref-active="active">Register</a>
 				      </li>
 				      <li class="divider-vertical"></li>
-				      <li><a ui-sref='login'>Login</a>
+				      <li><a ui-sref='user.login'>Login</a>
 				      </li>
 				    </ul>
 				    <ul class="navbar-nav nav" data-ng-show="global.authenticated">
@@ -51,7 +51,8 @@
 				          {{global.user.username}} <b class="caret"></b>
 				        </a>
 				        <ul class="dropdown-menu">
-				          <li><a href="/users/logout">Sign out</a>
+				          <!-- <li><a href="#/users/logout">Sign out</a> -->
+				          <li><a ui-sref='user.logout'>Sign out</a></li>
 				          </li>
 				        </ul>
 				      </li>
@@ -79,9 +80,12 @@
 <script type="text/javascript" src="lib/typeahead.js/typeahead.bundle.js"></script>
 <script type="text/javascript" src="lib/rome/rome.js"></script>
 <script type="text/javascript" src="lib/moment/moment.js"></script>
+<script type="text/javascript" src="lib/underscore/underscore.js"></script>
+<script type="text/javascript" src="lib/underscore/underscore.strings.js"></script>
 <script type="text/javascript" src="js/routingConfig.js"></script>
 <script type="text/javascript" src="controllers/meeting-controller.js"></script>
 <script type="text/javascript" src="services/meeting-service.js"></script>
 <script type="text/javascript" src="services/user-service.js"></script>
+<script type="text/javascript" src="services/underscore.js"></script>
 </body>
 </html>

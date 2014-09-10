@@ -10,12 +10,12 @@ $('#seltag').tagsinput({
   // itemValue: 'email',
   // itemText: 'email',
   typeaheadjs: {
-    name: 'recips',
+    // name: 'recips',
     displayKey: 'email',
     valueKey: 'email',
     source: recips.ttAdapter()
-  },
-  freeInput: true
+  }
+  // freeInput: true
 });
 
 var now = moment();

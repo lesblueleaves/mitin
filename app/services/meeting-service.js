@@ -1,11 +1,11 @@
 var module = angular.module('meetingApp.MeetingService', []);
 
 module.factory('MeetingService', ['$http', function($http){
-	var save = function(meeting, callback){
+	var save = function(meeting, cb){
 		$http.post('/meetings/add',meeting)
 			.success(function(data) {
 				console.log("save meeting ok");
-				callback(data);
+				cb(data);
 			});
 	};
 	var findOne = function(meetingId,cb){
@@ -14,12 +14,8 @@ module.factory('MeetingService', ['$http', function($http){
 				cb(data);
 			});
 	};
-	var showMessageFunction = function(msg) {
-        alert(msg);
-     };
     return {
     	save: save,
-    	findOne: findOne,
-        showMessage: showMessageFunction
+    	findOne: findOne
     };
 }]);
