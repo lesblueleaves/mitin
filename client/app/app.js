@@ -72,23 +72,16 @@ return _.find(routesThatDontRequireAuth,
     return _(route).startsWith(noAuthRoute);
   });
 };
-mitinApp.run(function ($rootScope, $state, $location,$cookieStore,$window, AuthService) {
-
+mitinApp.run(function ($rootScope, $location,$window, AuthService) {
     $rootScope.$on("$stateChangeStart", function (event, toState, toParams, fromState, fromParams) {
     	console.log(routeClean($location.url()));
-
     	var cuser;
-    	if($window.sessionStorage.user) cuser = JSON.parse(window.sessionStorage.user)
+    	if('undefined' != $window.sessionStorage.user 
+                && 'undefined' != typeof($window.sessionStorage.user)) 
+            cuser = JSON.parse(window.sessionStorage.user)
 	    if (!routeClean($location.url()) && !cuser) {
-	      // redirect back to login
-	     	// console.log('relogin');
 	      $location.path('/login');
 	      // $state.go('user.login');
-	    }else{
-	    	  $rootScope.global = {
-		        authenticated: !! cuser,
-		        user: cuser
-		      };
 	    }
     });
 });

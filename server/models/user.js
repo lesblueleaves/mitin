@@ -151,14 +151,7 @@ UserSchema.methods = {
     if (!password || !this.salt) return '';
     var salt = new Buffer(this.salt, 'base64');
     return crypto.pbkdf2Sync(password, salt, 10000, 64).toString('base64');
-  },
-
-   findById: function(id) {
-        return _.clone(_.find(users, function(user) { 
-          console.log(user.email);
-          console.log(id);
-          return user.email === id }));
-    }
+  }
 
   // findByIdEmail: function(mail){
     

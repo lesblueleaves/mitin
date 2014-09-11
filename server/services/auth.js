@@ -1,8 +1,6 @@
 var passport =  require('passport')
     , mongoose = require('mongoose')
-    // , User =      require('./models/User.js')
-    , User = mongoose.model('User'),
-    userRoles = require('../../client/js/routingConfig').userRoles;
+    , User = mongoose.model('User')
 
 module.exports ={
 	register: function(req, res, next){
@@ -17,12 +15,13 @@ module.exports ={
 
 		var errors = req.validationErrors();
 		if (errors) {
+			console.log(err);
 		return res.status(400).send(errors);
 		}
-		// user.roles = ['authenticated'];
-		user.roles = [userRoles.user];
+		user.roles = ['authenticated'];
 		user.save(function(err) {
 		if (err) {
+			console.log(err);
 		  	return res.send(400);
 		  }
 		});
@@ -30,12 +29,11 @@ module.exports ={
 		  if (err) return next(err);
 		  return res.redirect('/');
 		});
-		res.status(200);
+		res.json(200,{"user":user});
 	  },
 
 login: function(req, res, next){
 		passport.authenticate('local', function(err, user, info) {
-		console.log(user);
 		if (err) return next(err);
 		if (!user) {
 			req.flash('errors', { msg: info.message });
@@ -44,7 +42,6 @@ login: function(req, res, next){
 		}
 		req.logIn(user, function(err) {
 		  if (err) return next(err);
-			user.roles = [userRoles.admin];
 			res.json(200, { "user": user});
 		});
 	})(req, res, next);

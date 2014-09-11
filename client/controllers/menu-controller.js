@@ -1,22 +1,22 @@
 'use strict';
 angular.module('meetingApp')
-.controller('MenuCtrl', function($scope, $rootScope,$window, MenuService){
-	
+.controller('MenuCtrl', function($rootScope,$window, MenuService){
 	var cuser;
-	if($window.sessionStorage.user)
-	 	cuser = JSON.stringify(JSON.parse($window.sessionStorage.user));
+	if('undefined' != $window.sessionStorage.user 
+		&& 'undefined' != typeof($window.sessionStorage.user))
+		cuser = JSON.stringify(JSON.parse($window.sessionStorage.user));
+	
 	$rootScope.menus = MenuService.menu(cuser);
 
     $rootScope.$on('loggedin', function() {
-	      console.log('headin');
-	      if($window.sessionStorage.user)
-	 			cuser = JSON.stringify(JSON.parse($window.sessionStorage.user));
-	      $rootScope.menus = MenuService.menu(cuser);
-      });
+      if('undefined' != $window.sessionStorage.user &&
+      		'undefined' != typeof($window.sessionStorage.user))
+ 			cuser = JSON.stringify(JSON.parse($window.sessionStorage.user));
+      $rootScope.menus = MenuService.menu(cuser);
+    });
 
 	$rootScope.$on('loggedout', function() {
-	  console.log('loggedout');
-	  $rootScope.menus = MenuService.menu('');
+	  	$rootScope.menus = MenuService.menu('');
 	});
 
 });

@@ -1,16 +1,22 @@
 'use strict';
 angular.module('meetingApp')
-.controller('UserCtrl', function($scope, $rootScope, $location, $stateParams,$state, $http,$window, AuthService){
+.controller('UserCtrl', function($scope, $rootScope,$state,$window, AuthService){
     $scope.user = {};
+   
     $scope.login = function(){
         var success =function(userObject){
         $scope.loginError = 0;
+        console.log(userObject);
         $window.sessionStorage.user = JSON.stringify(userObject.user);
         $rootScope.$emit('loggedin');
+        $rootScope.global = {
+           authenticated: !!userObject.user,
+           user: userObject.user
+        };
         $state.go('user.home');
       };
       var error = function(){
-                $scope.loginerror = 'Authentication failed.';
+        $scope.loginerror = 'Authentication failed.';
       };
       AuthService.login($scope.user.email, $scope.user.password,success, error);
     };
@@ -18,25 +24,24 @@ angular.module('meetingApp')
     $scope.register = function() {
       $scope.usernameError = null;
       $scope.registerError = null;
-      $http.post('/users/register', {
-        email: $scope.user.email,
-        password: $scope.user.password,
-        confirmPassword: $scope.user.confirmPassword,
-        username: $scope.user.username,
-        name: $scope.user.name
-      })
-        .success(function() {
-          // authentication OK
-          $scope.registerError = 0;
-          $rootScope.user = $scope.user;
-          $rootScope.authenticated = true;
-          
-          $rootScope.$emit('loggedin');
-          // $location.url('/');
-          $location.path('/');
-        })
-        .error(function(error) {
-          // Error: authentication failed
+      var regUser={};
+      regUser.email= $scope.user.email;
+      regUser.password = $scope.user.password;
+      regUser.confirmPassword = $scope.user.confirmPassword;
+      regUser.username = $scope.user.username;
+      regUser.name = $scope.user.name;
+
+      AuthService.register(regUser,function(userObject){
+           $scope.registerError = 0;
+           console.log(userObject);
+            $window.sessionStorage.user = JSON.stringify(userObject.user);
+            $rootScope.$emit('loggedin');
+            $rootScope.global = {
+             authenticated: !!userObject.user,
+             user: userObject.user
+           };
+            $state.go('user.home');
+        }, function(error){
           if (error === 'Username already taken') {
             $scope.usernameError = error;
           } else if (error === 'Email already taken') {
@@ -45,18 +50,16 @@ angular.module('meetingApp')
         });
     };
 })
-.controller('logoutCtrl', function($location,$window, $state,$rootScope, AuthService){
-
+.controller('logoutCtrl', function($window, $state,$rootScope, AuthService){
   AuthService.logout(function() {
     delete $window.sessionStorage.user;
-     $rootScope.$emit('loggedout');
-    // delete $cookieStore.user
-        $rootScope.global = {
-            authenticated: false,
-            user: {}
-          };
-        $state.go('user.login');
+      $rootScope.$emit('loggedout');
+      $rootScope.global = {
+           authenticated: false,
+           user: ''
+        };
+      $state.go('user.login');
        }, function() {
-            $rootScope.error = "Failed to logout";
+          $rootScope.error = "Failed to logout";
      });
 });

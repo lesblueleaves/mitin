@@ -30,7 +30,7 @@ module.exports = {
              error: 'Cannot list mails of users'
             });
         }
-            console.log(users);
+            // console.log(users);
             res.json(users);
         }); 
     }

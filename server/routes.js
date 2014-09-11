@@ -6,9 +6,6 @@ var _ =       require('underscore')
     , AuthCtrl =  require('./services/auth.js')
     , UserCtrl =  require('./services/user.js')
     , MeetingCtrl = require('./services/meeting.js')
-    // , User =      require('./models/User.js')
-    , userRoles = require('../client/js/routingConfig').userRoles
-    , accessLevels = require('../client/js/routingConfig').accessLevels;
 
 var User = mongoose.model('User');
 
@@ -19,7 +16,6 @@ var routes = [
         path: '/users/register',
         httpMethod: 'POST',
         middleware: [AuthCtrl.register]
-        // accessLevel: accessLevels.public
     },
     {
         path: '/users/login',
@@ -34,39 +30,33 @@ var routes = [
     {
         path: '/users',
         httpMethod: 'GET',
-        middleware: [UserCtrl.findAll],
-        accessLevel: accessLevels.admin
+        middleware: [UserCtrl.findAll]
     },
     {
         path:'/users/loggedin',
         httpMethod: 'GET',
         middleware: [UserCtrl.loggedin]
-        // accessLevel: accessLevels.admin
     },
     {
         path:'/users/mail',
         httpMethod: 'GET',
         middleware: [UserCtrl.findMails]
-        // accessLevel: accessLevels.admin
     },
     //====== Meetings
     {
         path: '/meetings/all',
         httpMethod:'GET',
-        middleware:[MeetingCtrl.all],
-        accessLevel: accessLevels.user
+        middleware:[MeetingCtrl.all]
     },
     {
         path: '/meetings/:meetingId',
         httpMethod:'GET',
-        middleware:[MeetingCtrl.findOne],
-        accessLevel: accessLevels.admin
+        middleware:[MeetingCtrl.findOne]
     },
     {
         path: '/meetings/add',
         httpMethod:'POST',
-        middleware:[MeetingCtrl.add],
-        accessLevel: accessLevels.admin
+        middleware:[MeetingCtrl.add]
     },
 
     
@@ -85,7 +75,7 @@ module.exports = function(app) {
     _.each(routes, function(route) {
         route.middleware.unshift(ensureAuthorized);
         var args = _.flatten([route.path, route.middleware]);
-        console.log(args);
+        // console.log(args);
 
         switch(route.httpMethod.toUpperCase()) {
             case 'GET':
@@ -108,20 +98,7 @@ module.exports = function(app) {
 }
 
 function ensureAuthorized(req, res, next) {
-    // var role;
-    // if(!req.user) role = userRoles.public;
-    // else{
-    //     // req.user.roles[0] = userRoles.admin;
-    //   role = userRoles.admin; 
-    // }
-    // console.log(req.route.path);
-    // // console.log(req.route.stack);
-    // var accessLevel = _.findWhere(routes, { path: req.route.path, httpMethod: req.route.stack[0].method.toUpperCase() }).accessLevel || accessLevels.public;
-    // // if(!(accessLevel.bitMask & role.bitMask)) return res.send(403);
-    // // if(!req.user && accessLevels != accessLevels.public) return res.send(401);
-    // if(!(accessLevel.bitMask & role.bitMask)) return res.send(401);
-    // return next();
-
+  
     var routesThatDontRequireAuth = ['/users/register','/users/login'];
 
     var routeClean = function (route) {

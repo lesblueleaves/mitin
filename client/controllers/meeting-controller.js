@@ -1,5 +1,5 @@
 var mitinApp = angular.module('meetingApp');
-mitinApp.controller('MeetingController', function($scope,$location, $http, $stateParams, MeetingService){
+mitinApp.controller('MeetingController', function($scope,$location, $stateParams, MeetingService){
 	$scope.find = function(){
 		MeetingService.findAll(function(data){
 			$scope.meetings = data;

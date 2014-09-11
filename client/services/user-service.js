@@ -2,44 +2,35 @@
 
 angular.module('meetingApp')
 .factory('AuthService', function($http, $cookieStore){
-    var accessLevels = routingConfig.accessLevels
-        , userRoles = routingConfig.userRoles
-        // , currentUser = $cookieStore.get('user') || { username: '', role: userRoles.public };
-        , currentUser;
-
-    // $cookieStore.remove('user');
+    var  currentUser;
 
     function changeUser(user) {
         angular.extend(currentUser, user);
     }
 
     return {
-        authorize: function(accessLevel, role) {
-            if(role === undefined) {
-                role = currentUser.role;
-            }
-            return accessLevel.bitMask & role.bitMask;
-        },
-        isLoggedIn: function(user) {
-            $http.get('/users/loggedin').success(function(user){
-             currentUser = user;
-        });
-            return currentUser;
-        },
-        register: function(user, success, error) {
-            $http.post('/users/register', user).success(function(res) {
-                changeUser(res);
-                success();
-            }).error(error);
+        register: function(regUser, success, error) {
+            $http.post('/users/register', {
+                email: regUser.email,
+                password: regUser.password,
+                confirmPassword: regUser.confirmPassword,
+                username: regUser.username,
+                name: regUser.name
+              })
+            .success(function(res){
+                console.log(res);
+                success(res);
+            })
+            .error(function(res) {
+                error(error);
+            });
         },
         login:function(email,pass,success,error){
             $http.post('/users/login', {
               email: email,
               password: pass
             }).success(function(res){
-                // changeUser(res);
                 currentUser = res;
-                // console.log(res);
                 success(res);
             }).error(error);
         },
@@ -49,8 +40,6 @@ angular.module('meetingApp')
                 success();
             }).error(error);
         },
-        accessLevels: accessLevels,
-        userRoles: userRoles,
         user: currentUser
     };
 });
