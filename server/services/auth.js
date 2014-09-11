@@ -16,7 +16,7 @@ module.exports ={
 		var errors = req.validationErrors();
 		if (errors) {
 			console.log(err);
-		return res.status(400).send(errors);
+			return res.send(400);
 		}
 		user.roles = ['authenticated'];
 		user.save(function(err) {
@@ -27,9 +27,8 @@ module.exports ={
 		});
 		req.logIn(user, function(err) {
 		  if (err) return next(err);
-		  return res.redirect('/');
+		  res.json(200,{"user":user});
 		});
-		res.json(200,{"user":user});
 	  },
 
 login: function(req, res, next){

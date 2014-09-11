@@ -18,7 +18,6 @@ angular.module('meetingApp')
                 name: regUser.name
               })
             .success(function(res){
-                console.log(res);
                 success(res);
             })
             .error(function(res) {

@@ -33,7 +33,6 @@ angular.module('meetingApp')
 
       AuthService.register(regUser,function(userObject){
            $scope.registerError = 0;
-           console.log(userObject);
             $window.sessionStorage.user = JSON.stringify(userObject.user);
             $rootScope.$emit('loggedin');
             $rootScope.global = {
