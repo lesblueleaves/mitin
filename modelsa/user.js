@@ -2,7 +2,7 @@
  var _ =               require('underscore')
     , passport =        require('passport')
     , LocalStrategy =   require('passport-local').Strategy
-    , userRoles =       require('../../client/js/routingConfig').userRoles;
+    , userRoles =       require('../client/js/routingConfig').userRoles;
 
 /**
  * Module dependencies.
@@ -158,7 +158,7 @@ UserSchema.methods = {
           console.log(user.email);
           console.log(id);
           return user.email === id }));
-    }
+    },
 
   // findByIdEmail: function(mail){
     
